@@ -40,7 +40,7 @@ class Kernel extends ConsoleKernel
             foreach ($feeds as $feed) {            
                 \Log::info('Refreshing feeds: ' . $feed);
 
-                $feed_key = md5($feed);  
+                /*$feed_key = md5($feed);  
 
                 \Log::info('Parsing feed' . $feed_key);
                 if (Cache::has($feed_key)){
@@ -50,7 +50,9 @@ class Kernel extends ConsoleKernel
                     $feed = Feeds::make($feed);
                     Cache::put($feed_key, $feed, 9); 
                     echo "NOT cached<br>";
-                }
+                }*/
+
+                $feed = Feeds::make($feed);
                 $data = array(
                         'title' => $feed->get_title(),
                         'permalink' => $feed->get_permalink(),
@@ -87,7 +89,7 @@ class Kernel extends ConsoleKernel
 
                         \Log::info("Added " . $id . " {$price}");
                     } else {
-                        \Log::info("Item already on database " . $id);
+                        #\Log::info("Item already on database " . $id);
                     }
                     
                 }
