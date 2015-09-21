@@ -16,7 +16,10 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/parsefeed', function() {
+Route::get('parsefeed/{feed}', 
+	['as' => 'parsefeed', 'uses' => 'Ads@parsefeed']);
+
+Route::get('/parsefeed-test', function() {
 	if (Cache::has('myfeed')){
 		$feed = Cache::get('myfeed');
 		echo "cached<br>";
@@ -89,13 +92,13 @@ Route::get('mailtest', function(){
     foreach($ads as $ad){
         $data['ad'] = $ad;
 
-        Mail::send('emails.ad', $data, function($message) use ($data)
+        $ret = Mail::send(['html' => 'emails.ad'], $data, function($message) use ($data)
         {
-            $message->to('hbalagtas@uwaterloo.ca', 'Herbert Balagtas')->subject('Jijiki Alert: ' . $data['ad']->title);
-            $message->from('jijiki@uwaterloo.ca', 'Jijiki Alert');
+            $message->to('hbalagtas@live.com', 'Herbert Balagtas')->subject('Jijiki Alert: ' . html_entity_decode(html_entity_decode($data['ad']->title)));
+            $message->from('jijiki@hbalagtas.linuxd.org', 'Jijiki Alert');
         });
-
-        $ad->emailed = true;
+        var_dump($ret);
+        #$ad->emailed = true;
         $ad->save();
     }
 
