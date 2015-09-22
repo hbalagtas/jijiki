@@ -109,15 +109,18 @@ class Kernel extends ConsoleKernel
 
             foreach($ads as $ad){
                 $data['ad'] = $ad;
+                $blocked_keywords = "[scrap|removal|membership]";
+                if (preg_match($blocked_keywords, strtolower($ad->title)) == 0){
+                    \Log::info('Emailing new ad: ' . $ad->title);
 
-                \Log::info('Emailing new ad: ' . $ad->title);
-
-                $ret = \Mail::send(['html' => 'emails.ad'], $data, function($message) use ($data)
-                        {
-                            $message->to('hbalagtas@live.com', 'Herbert Balagtas')->subject('Jijiki Alert: ' . html_entity_decode(html_entity_decode($data['ad']->title)));
-                            $message->from('jijiki@hbalagtas.linuxd.org', 'Jijiki Alert');
-                        });
-
+                    $ret = \Mail::send(['html' => 'emails.ad'], $data, function($message) use ($data)
+                            {
+                                $message->to('hbalagtas@live.com', 'Herbert Balagtas')->subject('Jijiki Alert: ' . $data['ad']->price .' - ' . html_entity_decode(html_entity_decode($data['ad']->title)));
+                                $message->from('jijiki@hbalagtas.linuxd.org', 'Jijiki Alert');
+                            });
+                } else {
+                    \Log::info('Skipping spam ad: ' . $ad->title);
+                }
                 $ad->emailed = true;
                 $ad->save();
             }
