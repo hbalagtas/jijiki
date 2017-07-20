@@ -2,11 +2,12 @@
 <html lang="">
 
 	<body>
-		{{$ad->title}} $$$ {{$ad->price}}		
+		<a href="{{$ad->link}}" target="_blank">{{$ad->title}}</a>
+
+		PRICE {{$ad->price}}		
 		
 		{!! $ad->description !!}
 		
-		{{$ad->link}}
-
+		<a href="{{$ad->link}}" target="_blank">Ad Link</a>
 	</body>
 </html>

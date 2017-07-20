@@ -33,24 +33,16 @@ class Kernel extends ConsoleKernel
     {
         /*$schedule->command('inspire')
                  ->hourly();*/
+        //                    'http://www.kijiji.ca/rss-srp-bikes/kitchener-area/c644l1700209',
 
         $schedule->call(function(){
             $feeds = ['http://www.kijiji.ca/rss-srp-bikes/kitchener-waterloo/c644l1700212',
-                    'http://www.kijiji.ca/rss-srp-kitchener-waterloo/l1700212?ad=offering&price-type=free'];
+                    'http://www.kijiji.ca/rss-srp-road-bike/kitchener-waterloo/c648l1700212',                    
+                    'http://www.kijiji.ca/rss-srp-kitchener-waterloo/l1700212?ad=offering&price-type=free',
+                    'http://www.kijiji.ca/rss-srp-bikes/ontario/fat-bike/k0c644l9004'
+		];
             foreach ($feeds as $feed) {            
-                \Log::info('Refreshing feeds: ' . $feed);
-
-                /*$feed_key = md5($feed);  
-
-                \Log::info('Parsing feed' . $feed_key);
-                if (Cache::has($feed_key)){
-                    $feed = Cache::get($feed_key);            
-                    echo "Cached<br>";
-                }else{
-                    $feed = Feeds::make($feed);
-                    Cache::put($feed_key, $feed, 9); 
-                    echo "NOT cached<br>";
-                }*/
+                \Log::info('Refreshing feeds: ' . $feed);                
 
                 $feed = Feeds::make($feed);
                 $data = array(
@@ -69,8 +61,16 @@ class Kernel extends ConsoleKernel
                         $title = $item->get_title();
                         $description = $item->get_description() . "<br/>=================<br/>";
                         $link = $item->get_link();
-                                    
+
                         $html = $parser->file_get_html($link);
+			foreach($html->find('tr td') as $address ) {
+                                if (stristr($address->plaintext, 'view map') ){
+                                        $ad_loc = str_replace('View map','', $address->plaintext);
+                                }
+                        }
+                        $ad_link = '<a href="http://maps.google.com/?q='.$ad_loc.'">'.$ad_loc.'</a>';
+                        $description = "Location: " . $ad_link . "<br/>" . $description;
+                                    
                         foreach($html->find('span[itemprop=price]') as $span) {     
                             $price = $span->plaintext;
                         }
@@ -94,22 +94,14 @@ class Kernel extends ConsoleKernel
                     
                 }
             }
-        })->everyFiveMinutes();
-        /*$schedule->call(function () {
-                    $params = ['feed' => \Crypt::encrypt('http://www.kijiji.ca/rss-srp-bikes/kitchener-waterloo/c644l1700212')];
-                    $request = Request::create('parsefeed', 'GET', $params);
-                    \Log::info('Refreshing feeds: ' . $params['feed']);                    
-
-                    return \Route::dispatch($request)->getContent();
-                })->everyMinute();*/
-
-        $schedule->call(function () {
+        })->everyFiveMinutes()
+        ->after(function () {
             \Log::info('Checking for new ads');
             $ads = Ad::whereEmailed(false)->get();            
 
             foreach($ads as $ad){
                 $data['ad'] = $ad;
-                $blocked_keywords = "[scrap|removal|membership]";
+                $blocked_keywords = "[scrap|removal|membership|bmx|vintage|uber|scentsy|solar|boxes|computer repair|firewood|free ride|taxi|dish network|laptop repair|skids|outrageous|kickboxing|directv|inl3d|satellite|cancel|mattress|junk|ebike|delivery|trade|anxiety|channels|piano|e-bike|oil|similac|4000|epicure]";
                 if (preg_match($blocked_keywords, strtolower($ad->title)) == 0){
                     \Log::info('Emailing new ad: ' . $ad->title);
 
@@ -125,11 +117,7 @@ class Kernel extends ConsoleKernel
                 $ad->save();
             }
 
-        })->everyTenMinutes();
-    }
-
-    public function parsefeeds()
-    {
+        });
         
     }
 }

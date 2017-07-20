@@ -43,7 +43,14 @@ Route::get('/parsefeed-test', function() {
 			$title = $item->get_title();
 			$description = $item->get_description() . "<br/>=================<br/>";
 			$link = $item->get_link();
-						
+
+			foreach($html->find('tr td') as $address ) {
+                		if (stristr($address->plaintext, 'view map') ){
+                        		$ad_loc = str_replace('View map','', $address->plaintext);
+                		}
+        		}
+			$ad_link = '<a href="http://maps.google.com/?q='.$ad_loc.'">'.$ad_loc.'</a>';
+			$description .= "<br/>==================<br/>" . $ad_link;				
 			$html = $parser->file_get_html($link);
 			foreach($html->find('span[itemprop=price]') as $span) {		
 				$price = $span->plaintext;
@@ -72,13 +79,21 @@ Route::get('/parsefeed-test', function() {
 
 Route::get('htmlparser', function() {
 	$parser = new HtmlDomParser;
-	$html = $parser->file_get_html('http://www.kijiji.ca/v-mountain-bike/kitchener-waterloo/eranger-electric-mid-drive-fat-bike-48v-750w/1101241419');
-	echo $html->plaintext;	
+	$url = "http://www.kijiji.ca/v-bike-frames-parts/kitchener-waterloo/cat-eye-astrale-8-bike-computer-with-cadence/1149312122";
+	$html = $parser->file_get_html($url);
+
+	foreach($html->find('tr td') as $address ) {
+		if (stristr($address->plaintext, 'view map') ){
+			$ad_loc = str_replace('View map','', $address->plaintext);
+		}
+	}
+	#echo $html->plaintext;	
 	foreach($html->find('span[itemprop=price]') as $span) {		
 		$price = $span->plaintext;
 	}
 
 	echo $price;
+	echo 'Address' . $ad_loc;
 
 	foreach($html->find('div[id=ImageThumbnails] img') as $img) {
 		$src = str_replace('$_14', '$_27', $img->src);
