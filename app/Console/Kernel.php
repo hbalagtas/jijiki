@@ -68,7 +68,12 @@ class Kernel extends ConsoleKernel
                                         $ad_loc = str_replace('View map','', $address->plaintext);
                                 }
                         }*/
-                        $ad_loc = $html->find('span[class^=address]')[0]->plaintext;
+                        if ( count($html->find('span[class^=address]')) >= 1 ){
+                            $ad_loc = $html->find('span[class^=address]')[0]->plaintext;
+                        } else {
+                            $ad_loc = 'NA';
+                        }
+                        
                         $ad_link = '<a href="http://maps.google.com/?q='.$ad_loc.'">'.$ad_loc.'</a>';
                         $description = "Location: " . $ad_link . "<br/>" . $description;
                                     
