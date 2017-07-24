@@ -118,3 +118,42 @@ Route::get('mailtest', function(){
     }
 
 });
+
+Route::get('rssreader', function() {
+	$rss = 'http://www.kijiji.ca/rss-srp-bikes/ontario/fat-bike/k0c644l9004';
+
+	$feed = Feeds::make($rss);
+	$items = $feed->get_items();
+	$parser = new HtmlDomParser;
+	foreach( $items as $item ){
+		$tokens = explode('/', $item->get_link());
+		$id = end($tokens);
+		
+
+		$price = '';        
+		$title = $item->get_title();
+		$description = $item->get_description() . "<br/>=================<br/>";
+		$link = $item->get_link();
+
+		$html = $parser->file_get_html($link);
+		$ad_loc = $html->find('span[class^=address]')[0]->plaintext;
+		
+
+		$ad_link = '<a href="http://maps.google.com/?q='.$ad_loc.'">'.$ad_loc.'</a>';
+                        $description = "Location: " . $ad_link . "<br/>" . $description;
+        $price = $html->find('span[class^=currentPrice]')[0]->plaintext;
+
+        preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $html->find('div[class^=heroImage]')[0]->innertext, $match);
+        $src = $match[0][0];
+        $description .= "<img src='{$src}'> <br/>";
+
+        $ad = new App\Ad;
+        $ad->id = $id;
+        $ad->title = $title;
+        $ad->description = $description;
+        $ad->price = $price;
+        $ad->link = $link;
+
+        return $ad;
+	}
+});

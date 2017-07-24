@@ -63,21 +63,27 @@ class Kernel extends ConsoleKernel
                         $link = $item->get_link();
 
                         $html = $parser->file_get_html($link);
-			foreach($html->find('tr td') as $address ) {
+			            /*foreach($html->find('tr td') as $address ) {
                                 if (stristr($address->plaintext, 'view map') ){
                                         $ad_loc = str_replace('View map','', $address->plaintext);
                                 }
-                        }
+                        }*/
+                        $ad_loc = $html->find('span[class^=address]')[0]->plaintext;
                         $ad_link = '<a href="http://maps.google.com/?q='.$ad_loc.'">'.$ad_loc.'</a>';
                         $description = "Location: " . $ad_link . "<br/>" . $description;
                                     
-                        foreach($html->find('span[itemprop=price]') as $span) {     
+                        /*foreach($html->find('span[itemprop=price]') as $span) {     
                             $price = $span->plaintext;
-                        }
-                        foreach($html->find('div[id=ImageThumbnails] img') as $img) {
+                        }*/
+                        $price = $html->find('span[class^=currentPrice]')[0]->plaintext;
+
+                        /*foreach($html->find('div[id=ImageThumbnails] img') as $img) {
                             $src = str_replace('$_14', '$_27', $img->src);
                             $description .= "<img src='{$src}'> <br/>";
-                        }
+                        }*/
+                        preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $html->find('div[class^=heroImage]')[0]->innertext, $match);
+                        $src = $match[0][0];
+                        $description .= "<img src='{$src}'> <br/>";
 
                         $ad = new Ad;
                         $ad->id = $id;
