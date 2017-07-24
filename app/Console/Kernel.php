@@ -75,7 +75,12 @@ class Kernel extends ConsoleKernel
                         /*foreach($html->find('span[itemprop=price]') as $span) {     
                             $price = $span->plaintext;
                         }*/
-                        $price = $html->find('span[class^=currentPrice]')[0]->plaintext;
+                        if ( count( $html->find('span[class^=currentPrice]') ) >= 1 ){
+                            $price = $html->find('span[class^=currentPrice]')[0]->plaintext;
+                        } else {
+                            $price = 'NA';
+                        }
+                        
 
                         /*foreach($html->find('div[id=ImageThumbnails] img') as $img) {
                             $src = str_replace('$_14', '$_27', $img->src);
