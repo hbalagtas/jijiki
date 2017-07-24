@@ -43,6 +43,8 @@ return [
   */
   'strip_html_tags.disabled'=> false,
 
+  'strip_attribute.disabled' => false,
+
   /*
   |--------------------------------------------------------------------------
   | Striped Html Tags
