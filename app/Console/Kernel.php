@@ -59,7 +59,7 @@ class Kernel extends ConsoleKernel
                     if (!Ad::find($id)){    
                         $price = '';        
                         $title = $item->get_title();
-                        $description = $item->get_description() . "<br/>=================<br/>";
+                        $description = "<p>".$item->get_description() . "</p>";
                         $link = $item->get_link();
 
                         $html = $parser->file_get_html($link);
@@ -75,7 +75,7 @@ class Kernel extends ConsoleKernel
                         }
                         
                         $ad_link = '<a href="http://maps.google.com/?q='.$ad_loc.'">'.$ad_loc.'</a>';
-                        $description = "Location: " . $ad_link . "<br/>" . $description;
+                        $description = "<p>Location: " . $ad_link . "</p>" . $description;
                                     
                         /*foreach($html->find('span[itemprop=price]') as $span) {     
                             $price = $span->plaintext;
@@ -94,7 +94,7 @@ class Kernel extends ConsoleKernel
                         if ( count($html->find('div[class^=heroImage]')) >= 1 ){
                             preg_match('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $html->find('div[class^=heroImage]')[0]->innertext, $match);
                             $src = str_replace('&#x27', '', $match[0]);                            
-                            $description .= "<img src='{$src}'> <br/>";
+                            $description .= "<p><img src='{$src}'> </p>";
                         }                        
 
                         $ad = new Ad;

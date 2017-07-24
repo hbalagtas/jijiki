@@ -7,9 +7,9 @@
 
 		<p>PRICE {{$ad->price}}</p>		
 		
-		<p>{!! $ad->description !!}</p>
+		{!! $ad->description !!}
+
+		<p>Jijiki - Copyright Pancakes and Cookies 2017</p>		
 		
-		<br />
-		<a href="{{$ad->link}}" target="_blank">Ad Link</a>
 	</body>
 </html>
