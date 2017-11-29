@@ -126,7 +126,7 @@ class Kernel extends ConsoleKernel
 
                     $ret = \Mail::send(['html' => 'emails.ad'], $data, function($message) use ($data)
                             {
-                                $message->to('hbalagtas@live.com', 'Herbert Balagtas')->subject('Jijiki Alert: ' . $data['ad']->price .' - ' . html_entity_decode(html_entity_decode($data['ad']->title)));
+                                $message->to(env('USER_EMAIL', 'hbalagtas@live.com'), env('USER_NAME', 'Herbert Balagtas'))->subject('Jijiki Alert: ' . $data['ad']->price .' - ' . html_entity_decode(html_entity_decode($data['ad']->title)));
                                 $message->from('jijiki@hbalagtas.linuxd.org', 'Jijiki Alert');
                             });
                 } else {
