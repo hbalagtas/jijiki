@@ -94,7 +94,8 @@ class Kernel extends ConsoleKernel
                         if ( count($html->find('div[class^=heroImage]')) >= 1 ){
                             preg_match('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $html->find('div[class^=heroImage]')[0]->innertext, $match);
                             $match[0] = str_replace('"', '', $match[0]);
-                            $src = str_replace('&#x27', '', $match[0]);                            
+                            $src = str_replace('&#x27', '', $match[0]);
+                            $src = str_replace('&quot', '', $src);                            
                             $description .= "<p><img src='{$src}'></p>";
                         }                        
 
