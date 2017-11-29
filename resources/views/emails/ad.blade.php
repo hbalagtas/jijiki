@@ -7,7 +7,7 @@
 
 		<p>PRICE {{$ad->price}}</p>		
 		
-		{!! $ad->description !!}
+		{{ $ad->description }}
 
 		<p>Jijiki - Copyright Pancakes and Cookies 2017</p>		
 		
