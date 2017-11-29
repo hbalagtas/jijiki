@@ -74,7 +74,7 @@ class Kernel extends ConsoleKernel
                             $ad_loc = 'NA';
                         }
                         
-                        $ad_link = '<a href="http://maps.google.com/?q='.$ad_loc.'">'.$ad_loc.'</a>';
+                        $ad_link = '<a href="http://maps.google.com/?q='.urlencode($ad_loc).'">'.$ad_loc.'</a>';
                         $description = "<p>Location: " . $ad_link . "</p>" . $description;
                                     
                         /*foreach($html->find('span[itemprop=price]') as $span) {     
