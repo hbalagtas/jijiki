@@ -1,13 +1,13 @@
 <?php
 
 namespace App\Console;
-use Illuminate\Http\Request;
-use Illuminate\Routing\Controller;
+use App\Ad;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Illuminate\Routing\Router;
-
-use App\Ad;
+use Illuminate\Support\Facades\Mail;
 use \Cache;
 use \Feeds;
 use \HtmlDomParser;
@@ -121,7 +121,7 @@ class Kernel extends ConsoleKernel
             });
 
             // check for failures
-            if (Mail::failures()) {
+            if (\Mail::failures()) {
                 $this->info("Failed to send ad emails, will retry later");
             } else {
                 $ads->update(['emailed' => true]);
