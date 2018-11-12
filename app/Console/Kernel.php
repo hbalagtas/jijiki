@@ -39,6 +39,7 @@ class Kernel extends ConsoleKernel
             $feeds = ['http://www.kijiji.ca/rss-srp-bikes/kitchener-waterloo/c644l1700212',
                     'http://www.kijiji.ca/rss-srp-road-bike/kitchener-waterloo/c648l1700212',                    
                     'http://www.kijiji.ca/rss-srp-kitchener-waterloo/l1700212?ad=offering&price-type=free',
+                    'https://www.kijiji.ca/rss-srp-free-stuff/kitchener-waterloo/c17220001l1700212',
                     'http://www.kijiji.ca/rss-srp-bikes/ontario/fat-bike/k0c644l9004'
 		];
             foreach ($feeds as $feed) {            
@@ -51,6 +52,8 @@ class Kernel extends ConsoleKernel
                         'items' => $feed->get_items()
                     );
 
+                $blocked_keywords = "[scrap|removal|membership|bmx|vintage|uber|scentsy|solar|boxes|computer repair|firewood|free ride|taxi|dish network|laptop repair|skids|outrageous|kickboxing|directv|inl3d|satellite|cancel|mattress|junk|ebike|delivery|trade|anxiety|channels|piano|e-bike|oil|similac|4000|epicure]";
+
                 $parser = new HtmlDomParser;
                 foreach ($data['items'] as $item){
                     $tokens = explode('/', $item->get_link());
@@ -59,55 +62,46 @@ class Kernel extends ConsoleKernel
                     if (!Ad::find($id)){    
                         $price = '';        
                         $title = $item->get_title();
-                        $description = "<p>".$item->get_description() . "</p>";
-                        $link = $item->get_link();
+                        if (preg_match($blocked_keywords, strtolower($title)) == 0){
 
-                        $html = $parser->file_get_html($link);
-			            /*foreach($html->find('tr td') as $address ) {
-                                if (stristr($address->plaintext, 'view map') ){
-                                        $ad_loc = str_replace('View map','', $address->plaintext);
-                                }
-                        }*/
-                        if ( count($html->find('span[class^=address]')) >= 1 ){
-                            $ad_loc = $html->find('span[class^=address]')[0]->plaintext;
-                        } else {
-                            $ad_loc = 'NA';
+                            $description = "<p>".$item->get_description() . "</p>";
+                            $link = $item->get_link();
+                            $html = $parser->file_get_html($link);
+                            
+                            if ( count($html->find('span[class^=address]')) >= 1 ){
+                                $ad_loc = $html->find('span[class^=address]')[0]->plaintext;
+                            } else {
+                                $ad_loc = 'NA';
+                            }
+                            
+                            $ad_link = '<a href="http://maps.google.com/?q='.urlencode($ad_loc).'">'.$ad_loc.'</a>';
+                            $description = "<p>Location: " . $ad_link . "</p>" . $description;
+                            
+                            if ( count( $html->find('span[class^=currentPrice]') ) >= 1 ){
+                                $price = $html->find('span[class^=currentPrice]')[0]->plaintext;
+                            } else {
+                                $price = 'NA';
+                            }
+                            
+                            if ( count($html->find('div[class^=heroImage]')) >= 1 ){
+                                preg_match('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $html->find('div[class^=heroImage]')[0]->innertext, $match);
+                                $match[0] = str_replace('"', '', $match[0]);
+                                $src = str_replace('&#x27', '', $match[0]);
+                                $src = str_replace('&quot', '', $src);                            
+                                $description .= "<p><img src='{$src}'></p>";
+                            } 
+
+                            $ad = new Ad;
+                            $ad->id = $id;
+                            $ad->title = $title;
+                            $ad->description = $description;
+                            $ad->price = $price;
+                            $ad->link = $link;
+                            $ad->save();
+
+                            \Log::info("Added " . $id . " {$price}");
                         }
                         
-                        $ad_link = '<a href="http://maps.google.com/?q='.urlencode($ad_loc).'">'.$ad_loc.'</a>';
-                        $description = "<p>Location: " . $ad_link . "</p>" . $description;
-                                    
-                        /*foreach($html->find('span[itemprop=price]') as $span) {     
-                            $price = $span->plaintext;
-                        }*/
-                        if ( count( $html->find('span[class^=currentPrice]') ) >= 1 ){
-                            $price = $html->find('span[class^=currentPrice]')[0]->plaintext;
-                        } else {
-                            $price = 'NA';
-                        }
-                        
-
-                        /*foreach($html->find('div[id=ImageThumbnails] img') as $img) {
-                            $src = str_replace('$_14', '$_27', $img->src);
-                            $description .= "<img src='{$src}'> <br/>";
-                        }*/
-                        if ( count($html->find('div[class^=heroImage]')) >= 1 ){
-                            preg_match('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $html->find('div[class^=heroImage]')[0]->innertext, $match);
-                            $match[0] = str_replace('"', '', $match[0]);
-                            $src = str_replace('&#x27', '', $match[0]);
-                            $src = str_replace('&quot', '', $src);                            
-                            $description .= "<p><img src='{$src}'></p>";
-                        }                        
-
-                        $ad = new Ad;
-                        $ad->id = $id;
-                        $ad->title = $title;
-                        $ad->description = $description;
-                        $ad->price = $price;
-                        $ad->link = $link;
-                        $ad->save();
-
-                        \Log::info("Added " . $id . " {$price}");
                     } else {
                         #\Log::info("Item already on database " . $id);
                     }
@@ -117,26 +111,21 @@ class Kernel extends ConsoleKernel
         })->everyFiveMinutes()
         ->after(function () {
             \Log::info('Checking for new ads');
-            $ads = Ad::whereEmailed(false)->get();            
+            $ads = Ad::whereEmailed(false)->get();   
 
-            foreach($ads as $ad){
-                $data['ad'] = $ad;
-                $blocked_keywords = "[scrap|removal|membership|bmx|vintage|uber|scentsy|solar|boxes|computer repair|firewood|free ride|taxi|dish network|laptop repair|skids|outrageous|kickboxing|directv|inl3d|satellite|cancel|mattress|junk|ebike|delivery|trade|anxiety|channels|piano|e-bike|oil|similac|4000|epicure]";
-                if (preg_match($blocked_keywords, strtolower($ad->title)) == 0){
-                    \Log::info('Emailing new ad: ' . $ad->title);
+            $ret = \Mail::send(['html' => 'emails.ad'], ["ads" => $ads], function($message) use ($data)
+            {
+                $message->to(env('USER_EMAIL', 'hbalagtas@live.com'), env('USER_NAME', 'Herbert Balagtas'));
+                $message->subject('Jijiki Alerts for ' . date("M d - h:i A"));
+                $message->from('jijiki@hbalagtas.linuxd.org', 'Jijiki Alert');
+            });
 
-                    $ret = \Mail::send(['html' => 'emails.ad'], $data, function($message) use ($data)
-                            {
-                                $message->to(env('USER_EMAIL', 'hbalagtas@live.com'), env('USER_NAME', 'Herbert Balagtas'))->subject('Jijiki Alert: ' . $data['ad']->price .' - ' . html_entity_decode(html_entity_decode($data['ad']->title)));
-                                $message->from('jijiki@hbalagtas.linuxd.org', 'Jijiki Alert');
-                            });
-                } else {
-                    \Log::info('Skipping spam ad: ' . $ad->title);
-                }
-                $ad->emailed = true;
-                $ad->save();
+            // check for failures
+            if (Mail::failures()) {
+                $this->info("Failed to send ad emails, will retry later");
+            } else {
+                $ads->update(['emailed' => true]);
             }
-
         });
         
     }
