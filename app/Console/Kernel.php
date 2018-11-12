@@ -112,21 +112,22 @@ class Kernel extends ConsoleKernel
         ->after(function () {
             \Log::info('Checking for new ads');
             $ads = Ad::whereEmailed(false)->get();   
+            if ( $ads->count() > 0 ){
+                $ret = \Mail::send(['html' => 'emails.ad'], ["ads" => $ads], function($message)
+                {
+                    $message->to(env('USER_EMAIL', 'hbalagtas@live.com'), env('USER_NAME', 'Herbert Balagtas'));
+                    $message->subject('Jijiki Alerts for ' . date("M d - h:i A"));
+                    $message->from('jijiki@hbalagtas.linuxd.org', 'Jijiki Alert');
+                });
 
-            $ret = \Mail::send(['html' => 'emails.ad'], ["ads" => $ads], function($message)
-            {
-                $message->to(env('USER_EMAIL', 'hbalagtas@live.com'), env('USER_NAME', 'Herbert Balagtas'));
-                $message->subject('Jijiki Alerts for ' . date("M d - h:i A"));
-                $message->from('jijiki@hbalagtas.linuxd.org', 'Jijiki Alert');
-            });
-
-            // check for failures
-            if (\Mail::failures()) {
-                $this->info("Failed to send ad emails, will retry later");
-            } else {
-                foreach ($ads as $ad) {
-                    $ad->emailed = true;
-                    $ad->save();
+                // check for failures
+                if (\Mail::failures()) {
+                    $this->info("Failed to send ad emails, will retry later");
+                } else {
+                    foreach ($ads as $ad) {
+                        $ad->emailed = true;
+                        $ad->save();
+                    }
                 }
             }
         });
