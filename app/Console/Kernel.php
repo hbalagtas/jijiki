@@ -113,7 +113,7 @@ class Kernel extends ConsoleKernel
             \Log::info('Checking for new ads');
             $ads = Ad::whereEmailed(false)->get();   
 
-            $ret = \Mail::send(['html' => 'emails.ad'], ["ads" => $ads], function($message) use ($data)
+            $ret = \Mail::send(['html' => 'emails.ad'], ["ads" => $ads], function($message)
             {
                 $message->to(env('USER_EMAIL', 'hbalagtas@live.com'), env('USER_NAME', 'Herbert Balagtas'));
                 $message->subject('Jijiki Alerts for ' . date("M d - h:i A"));
