@@ -124,7 +124,10 @@ class Kernel extends ConsoleKernel
             if (\Mail::failures()) {
                 $this->info("Failed to send ad emails, will retry later");
             } else {
-                $ads->update(['emailed' => true]);
+                foreach ($ads as $ad) {
+                    $ad->emailed = true;
+                    $ad->save();
+                }
             }
         });
         
