@@ -52,7 +52,7 @@ class Kernel extends ConsoleKernel
                         'items' => $feed->get_items()
                     );
 
-                $blocked_keywords = "[scrap|removal|membership|bmx|vintage|uber|scentsy|solar|boxes|computer repair|firewood|free ride|taxi|dish network|laptop repair|skids|outrageous|kickboxing|directv|inl3d|satellite|cancel|mattress|junk|ebike|delivery|trade|anxiety|channels|piano|e-bike|oil|similac|4000|epicure]";
+                $blocked_keywords = "[scrap|removal|membership|bmx|vintage|uber|scentsy|solar|boxes|computer repair|firewood|free ride|taxi|dish network|laptop repair|skids|outrageous|kickboxing|directv|inl3d|satellite|cancel|mattress|junk|ebike|delivery|trade|anxiety|channels|piano|oil|similac|epicure|tutor|compost|gift card|quran|couch|magazine]";
 
                 $parser = new HtmlDomParser;
                 foreach ($data['items'] as $item){
