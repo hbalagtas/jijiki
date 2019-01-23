@@ -40,7 +40,8 @@ class Kernel extends ConsoleKernel
                     'http://www.kijiji.ca/rss-srp-road-bike/kitchener-waterloo/c648l1700212',                    
                     'http://www.kijiji.ca/rss-srp-kitchener-waterloo/l1700212?ad=offering&price-type=free',
                     'https://www.kijiji.ca/rss-srp-free-stuff/kitchener-waterloo/c17220001l1700212',
-                    'http://www.kijiji.ca/rss-srp-bikes/ontario/fat-bike/k0c644l9004'
+                    'http://www.kijiji.ca/rss-srp-bikes/ontario/fat-bike/k0c644l9004',
+		    'https://www.kijiji.ca/b-bikes/kitchener-area/fuji/k0c644l1700209',
 		];
             foreach ($feeds as $feed) {            
                 \Log::info('Refreshing feeds: ' . $feed);                
