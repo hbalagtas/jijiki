@@ -143,6 +143,9 @@ Route::get('rssreader', function() {
                         $description = "Location: " . $ad_link . "<br/>" . $description;
         $price = $html->find('span[class^=currentPrice]')[0]->plaintext;
 
+        if (count($html->find('div[class^=heroImage]')) >0) {
+
+        }
         preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $html->find('div[class^=heroImage]')[0]->innertext, $match);
         $src = $match[0][0];
         $description .= "<img src='{$src}'> <br/>";
