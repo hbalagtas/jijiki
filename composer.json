@@ -6,7 +6,7 @@
     "type": "project",
     "require": {
         "php": ">=5.5.9",
-        "laravel/framework": "5.1.*",
+        "laravel/framework": "5.5.*",
         "willvincent/feeds": "1.1.*",
         "sunra/php-simple-html-dom-parser": "1.5.*"
     },
